@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import multiprocessing as mp
 import os
 import pygame
@@ -6,8 +6,11 @@ import random
 
 app = Flask(__name__)
 
+# Global variable to store the result
+solution_correct = None
+
 # Function to run the Pygame code
-def run_pygame():
+def run_pygame(result_queue):
     # Constants
     WINDOW_WIDTH = 450
     WINDOW_HEIGHT = 450
@@ -136,27 +139,25 @@ def run_pygame():
                 if event.key == pygame.K_v:
                     # If the user presses "v", validate the solution
                     solution_correct = check_solution(tiles, original_image)
-                    if solution_correct:
-                        print("Access granted")
-                    else:
-                        print("Access denied")
+                    result_queue.put(solution_correct)
+                    running = False
 
         window.fill(WHITE)
         draw_tiles(tiles)
         pygame.display.update()
 
-# Define Flask routes
 @app.route('/')
 def index():
     return render_template('index.html')
 
 @app.route('/execute_python_code', methods=['POST'])
 def execute_python_code():
-    # Create a process to run the Pygame code
-    pygame_process = mp.Process(target=run_pygame)
+    result_queue = mp.Queue()
+    pygame_process = mp.Process(target=run_pygame, args=(result_queue,))
     pygame_process.start()
-    return "Game started!"
+    pygame_process.join()  # Wait for the Pygame process to finish
+    solution_correct = result_queue.get()
+    return jsonify({'result': solution_correct})
 
 if __name__ == '__main__':
-    # Start the Flask app
     app.run(debug=True)
