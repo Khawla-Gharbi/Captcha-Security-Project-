@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Game Nest</title>
     <link rel="stylesheet" type="text/css" href="\static\project.css">
 </head>
 <body>
@@ -15,6 +16,30 @@
             <button type="submit">Register Now</button>
         </form>
     </div>
+    <div id="result"></div>
+    <script>
+        document.getElementById("registrationForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+
+            fetch("/execute_python_code", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                var resultDiv = document.getElementById("result");
+                if (data.result) {
+                    alert("Access Granted");
+                } else {
+                    alert("Access Denied,Try Again");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
+        });
+    </script>
     <script src="project.js"></script>
 </body>
 </html>
