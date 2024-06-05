@@ -38,7 +38,6 @@ def run_pygame(result_queue):
     # Function to shuffle tiles
     def shuffle_tiles(tiles):
         random.shuffle(tiles)
-
     # Function to draw tiles
     def draw_tiles(tiles):
         for i, tile in enumerate(tiles):
@@ -136,8 +135,8 @@ def run_pygame(result_queue):
                         empty_tile_index = dragged_tile_index
                     dragging = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_v:
-                    # If the user presses "v", validate the solution
+                if event.key == pygame.K_RETURN:
+                    # If the user presses "enter", validate the solution
                     solution_correct = check_solution(tiles, original_image)
                     result_queue.put(solution_correct)
                     running = False
